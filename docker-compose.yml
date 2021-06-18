@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+    db:
+        image: mysql:5.7
+        volumes:
+            - ./volume:/var/lib/mysql/      
+        ports:
+            - 3306
+        networks:
+            - backend
+        environment:
+            MYSQL_ROOT_PASSWORD: 1111
+            MYSQL_DATABASE: "back"
+        entrypoint:
+            sh -c "
+            echo 'CREATE DATABASE IF NOT EXISTS lavagna;' > /docker-entrypoint-initdb.d/init.sql;
+            /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci " 
+    lavagna:
+        depends_on: 
+            - db
+        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:lavagna_app
+        ports:
+            - 8080
+        networks:
+            - backend
+            - frontend
+        links:
+            -   db
+        restart: unless-stopped
+        
+
+    nginx:
+        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:nginx_app
+        ports: 
+            - 80:80
+        networks: 
+            - frontend
+        depends_on: 
+            - lavagna
+        restart: unless-stopped
+    
+    nginx_docs:
+        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:docs_lazania
+        ports: 
+            - "8081:80"
+        
+        
+networks:
+    backend:
+    frontend:
