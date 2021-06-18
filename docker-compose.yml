@@ -4,7 +4,7 @@ services:
     db:
         image: mysql:5.7
         volumes:
-            - ./volume:/var/lib/mysql/      
+            - ./volume:/var/lib/mysql/
         ports:
             - 3306
         networks:
@@ -15,11 +15,11 @@ services:
         entrypoint:
             sh -c "
             echo 'CREATE DATABASE IF NOT EXISTS lavagna;' > /docker-entrypoint-initdb.d/init.sql;
-            /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci " 
+            /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci "
     lavagna:
-        depends_on: 
+        depends_on:
             - db
-        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:lavagna_app
+        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:app_{$ver}
         ports:
             - 8080
         networks:
@@ -28,24 +28,24 @@ services:
         links:
             -   db
         restart: unless-stopped
-        
+
 
     nginx:
-        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:nginx_app
-        ports: 
+        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:nginx_{$ver}
+        ports:
             - 80:80
-        networks: 
+        networks:
             - frontend
-        depends_on: 
+        depends_on:
             - lavagna
         restart: unless-stopped
-    
+
     nginx_docs:
-        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:docs_lazania
-        ports: 
+        image: 072932127557.dkr.ecr.us-east-2.amazonaws.com/lazania:docs_{$ver}
+        ports:
             - "8081:80"
-        
-        
+
+
 networks:
     backend:
     frontend:
